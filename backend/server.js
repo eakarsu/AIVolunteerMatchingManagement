@@ -16,6 +16,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'ai-volunteer-matching-management', timestamp: new Date().toISOString() });
 });
 
+// Custom Views (mounted before 404/error handler)
+app.use('/api/custom-views', require('./routes/customViews'));
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);

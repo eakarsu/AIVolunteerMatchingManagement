@@ -36,6 +36,7 @@ import GapNoReportingExportEndpoints from './pages/GapNoReportingExportEndpoints
 import GapNoBackgroundCheckComplianceTracking from './pages/GapNoBackgroundCheckComplianceTracking'
 import GapNoDonorFunderReportingIntegration from './pages/GapNoDonorFunderReportingIntegration'
 import GapNoMultiOrganizationTenancy from './pages/GapNoMultiOrganizationTenancy'
+import CustomViewsPage from './pages/CustomViewsPage.jsx';
 
 function Sidebar() {
   const { user, logout } = useAuth();
@@ -51,6 +52,8 @@ function Sidebar() {
           {t.title}
         </NavLink>
       ))}
+      <div style={{ marginTop: 12, fontSize: '0.75rem', textTransform: 'uppercase', color: '#9ca3af' }}>Custom</div>
+      <NavLink to="/custom-views" className={({ isActive }) => isActive ? 'active' : ''}>Volunteer Views</NavLink>
       <div className="user-box">
         <div>Signed in as</div>
         <div><strong>{user?.name || user?.email}</strong></div>
@@ -116,6 +119,7 @@ export default function App() {
       <Route path="/tools/feedback-summary" element={<ProtectedShell><FeedbackSummary /></ProtectedShell>} />
       <Route path="/tools/recruitment-message" element={<ProtectedShell><RecruitmentMessage /></ProtectedShell>} />
       <Route path="/tools/recognition-note" element={<ProtectedShell><RecognitionNote /></ProtectedShell>} />
+      <Route path="/custom-views" element={<ProtectedShell><CustomViewsPage /></ProtectedShell>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
