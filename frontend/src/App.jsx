@@ -38,6 +38,11 @@ import GapNoDonorFunderReportingIntegration from './pages/GapNoDonorFunderReport
 import GapNoMultiOrganizationTenancy from './pages/GapNoMultiOrganizationTenancy'
 import CustomViewsPage from './pages/CustomViewsPage.jsx';
 
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
+
 function Sidebar() {
   const { user, logout } = useAuth();
   const nav = useNavigate();
@@ -81,6 +86,10 @@ export default function App() {
   if (!user) {
     return (
       <Routes>
+        <Route path="/insights/timeline" element={<ProtectedRoute><TimelineView /></ProtectedRoute>} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
         <Route path="/register" element={<Register />} />
         {/* // === Batch 08 Gaps & Frontend Mounts === */}
       <Route path="/cf-skills-to-opportunity-matching-engine-with-explainability" element={<ProtectedRoute><CfSkillsToOpportunityMatchingEngineWithExplainability /></ProtectedRoute>} />
