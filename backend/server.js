@@ -1,48 +1,51 @@
+'use strict';
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config({ path: '../.env' });
+const auth = require('./middleware/auth');
+const governanceRouter = require('./governance');
+
+for (const name of ['DATABASE_URL', 'GOVERNANCE_TENANT_ID']) {
+  if (!process.env[name]) throw new Error(`${name} is required`);
+}
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET must be at least 32 characters');
+}
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3001;
+const PORT = process.env.PORT || process.env.BACKEND_PORT || 3001;
+const generatedRoutesEnabled = process.env.ENABLE_GENERATED_FEATURES === 'true' && process.env.NODE_ENV !== 'production';
 
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
 app.use(express.json({ limit: '2mb' }));
 
-// Routes
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/ai', require('./routes/ai'));
-
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'ai-volunteer-matching-management', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', service: 'ai-volunteer-matching-management', generatedRoutesEnabled,
+    timestamp: new Date().toISOString() });
 });
 
-// Custom Views (mounted before 404/error handler)
-app.use('/api/custom-views', require('./routes/customViews'));
+app.use('/api', auth);
+app.use('/api/governance', governanceRouter);
 
-// Global error handler
+if (generatedRoutesEnabled) {
+  const mounts = [
+    ['/api/ai', './routes/ai'],
+    ['/api/skills-opportunity-matching', './routes/skillsOpportunityMatching'],
+    ['/api/retention-risk-scoring', './routes/retentionRiskScoring'],
+    ['/api/impact-report-generation', './routes/impactReportGeneration'],
+    ['/api/volunteer-hours-tracking', './routes/volunteerHoursTracking'],
+    ['/api/background-check', './routes/backgroundCheck'],
+    ['/api/mobile-shift-checkin', './routes/mobileShiftCheckin'],
+    ['/api/custom-views', './routes/customViews']
+  ];
+  mounts.forEach(([mount, modulePath]) => app.use(mount, require(modulePath)));
+}
+
+app.use((req, res) => res.status(404).json({ error: 'not found' }));
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err.message);
-  res.status(err.statusCode || 500).json({
-    error: err.message || 'Something went wrong',
-  });
+  console.error('Unhandled request error:', err.message);
+  res.status(500).json({ error: 'internal server error' });
 });
 
-app.use('/api/skills-opportunity-matching', require('./routes/skillsOpportunityMatching')); app.use('/api/retention-risk-scoring', require('./routes/retentionRiskScoring')); app.use('/api/impact-report-generation', require('./routes/impactReportGeneration')); app.use('/api/volunteer-hours-tracking', require('./routes/volunteerHoursTracking')); app.use('/api/background-check', require('./routes/backgroundCheck')); app.use('/api/mobile-shift-checkin', require('./routes/mobileShiftCheckin'));
-
-// === Batch 08 Gaps & Frontend Mounts ===
-app.use('/api/gap-no-vision-based-volunteer-id-verification', require('./routes/gapNoVisionBasedVolunteerIdVerification'));
-app.use('/api/gap-no-conversational-onboarding-bot-for-volunteers', require('./routes/gapNoConversationalOnboardingBotForVolunteers'));
-app.use('/api/gap-no-predictive-volunteer-hour-forecasting-at-the-organization-level', require('./routes/gapNoPredictiveVolunteerHourForecastingAtTheOrganizationLevel'));
-app.use('/api/gap-no-volunteer-profile-crud-backend-only-via-ai', require('./routes/gapNoVolunteerProfileCrudBackendOnlyViaAi'));
-app.use('/api/gap-no-opportunity-crud-backend', require('./routes/gapNoOpportunityCrudBackend'));
-app.use('/api/gap-no-shift-schedule-database-tables', require('./routes/gapNoShiftScheduleDatabaseTables'));
-app.use('/api/gap-no-notifications-subsystem-sms-email-reminders', require('./routes/gapNoNotificationsSubsystemSmsEmailReminders'));
-app.use('/api/gap-no-webhooks', require('./routes/gapNoWebhooks'));
-app.use('/api/gap-no-reporting-export-endpoints', require('./routes/gapNoReportingExportEndpoints'));
-app.use('/api/gap-no-background-check-compliance-tracking', require('./routes/gapNoBackgroundCheckComplianceTracking'));
-app.use('/api/gap-no-donor-funder-reporting-integration', require('./routes/gapNoDonorFunderReportingIntegration'));
-app.use('/api/gap-no-multi-organization-tenancy', require('./routes/gapNoMultiOrganizationTenancy'));
-
-app.listen(PORT, () => {
-  console.log(`AI Volunteer Matching Management backend listening on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`AI Volunteer Matching Management backend listening on port ${PORT}`));

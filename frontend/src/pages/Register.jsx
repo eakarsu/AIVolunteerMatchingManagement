@@ -39,7 +39,7 @@ export default function Register() {
         </div>
         <div className="form-row">
           <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={12} />
         </div>
         {err && <div className="error">{err}</div>}
         <button className="primary" disabled={busy}>{busy ? 'Creating...' : 'Register'}</button>

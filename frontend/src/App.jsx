@@ -26,7 +26,6 @@ import CfBackgroundCheckIntegrationsSterlingCheckr from './pages/CfBackgroundChe
 import CfMobileCompanionAppForShiftCheckIn from './pages/CfMobileCompanionAppForShiftCheckIn'
 import GapNoVisionBasedVolunteerIdVerification from './pages/GapNoVisionBasedVolunteerIdVerification'
 import GapNoConversationalOnboardingBotForVolunteers from './pages/GapNoConversationalOnboardingBotForVolunteers'
-import GapNoPredictiveVolunteerHourForecastingAtThe from './pages/GapNoPredictiveVolunteerHourForecastingAtThe'
 import GapNoVolunteerProfileCrudBackendOnlyVia from './pages/GapNoVolunteerProfileCrudBackendOnlyVia'
 import GapNoOpportunityCrudBackend from './pages/GapNoOpportunityCrudBackend'
 import GapNoShiftScheduleDatabaseTables from './pages/GapNoShiftScheduleDatabaseTables'
@@ -42,6 +41,10 @@ import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
 import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 import TimelineView from './pages/TimelineView';
+
+function ProtectedRoute({ children }) {
+  return localStorage.getItem('token') ? children : <Navigate to="/" replace />;
+}
 
 function Sidebar() {
   const { user, logout } = useAuth();
@@ -100,7 +103,6 @@ export default function App() {
       <Route path="/cf-mobile-companion-app-for-shift-check-in" element={<ProtectedRoute><CfMobileCompanionAppForShiftCheckIn /></ProtectedRoute>} />
       <Route path="/gap-no-vision-based-volunteer-id-verification" element={<ProtectedRoute><GapNoVisionBasedVolunteerIdVerification /></ProtectedRoute>} />
       <Route path="/gap-no-conversational-onboarding-bot-for-volunteers" element={<ProtectedRoute><GapNoConversationalOnboardingBotForVolunteers /></ProtectedRoute>} />
-      <Route path="/gap-no-predictive-volunteer-hour-forecasting-at-the-organization-level" element={<ProtectedRoute><GapNoPredictiveVolunteerHourForecastingAtThe /></ProtectedRoute>} />
       <Route path="/gap-no-volunteer-profile-crud-backend-only-via-ai" element={<ProtectedRoute><GapNoVolunteerProfileCrudBackendOnlyVia /></ProtectedRoute>} />
       <Route path="/gap-no-opportunity-crud-backend" element={<ProtectedRoute><GapNoOpportunityCrudBackend /></ProtectedRoute>} />
       <Route path="/gap-no-shift-schedule-database-tables" element={<ProtectedRoute><GapNoShiftScheduleDatabaseTables /></ProtectedRoute>} />
