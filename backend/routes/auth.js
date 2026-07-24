@@ -18,9 +18,11 @@ router.post('/register', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO users (name, email, password, organization, role)
        VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (email) DO NOTHING
        RETURNING id, name, email, organization, role`,
       [name, email, hashed, organization || null, 'volunteer']
     );
+    if (!result.rows[0]) return res.status(409).json({ error: 'Email already registered' });
     const user = result.rows[0];
     const token = jwt.sign(
       { id: String(user.id), email: user.email, role: user.role,

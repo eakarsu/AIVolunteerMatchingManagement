@@ -27,10 +27,10 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api', auth);
 app.use('/api/governance', governanceRouter);
+app.use('/api/ai', require('./routes/ai'));
 
 if (generatedRoutesEnabled) {
   const mounts = [
-    ['/api/ai', './routes/ai'],
     ['/api/skills-opportunity-matching', './routes/skillsOpportunityMatching'],
     ['/api/retention-risk-scoring', './routes/retentionRiskScoring'],
     ['/api/impact-report-generation', './routes/impactReportGeneration'],
